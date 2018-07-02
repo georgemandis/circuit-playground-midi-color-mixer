@@ -1,5 +1,4 @@
-# Circuit Playground MIDI Controller
-## Color Mixer
+# Circuit Playground MIDI Controller — Color Mixer
 
 This is designed to work with the [Circuit Playground MIDI Controller Multi-Tool](https://github.com/georgemandis/circuit-playground-midi-multi-tool) — a project designed for my [WebMIDI workshops](http://midi.mand.is/) that turns your Adafruit Circuit Playground into a fun, multi-faceted MIDI controller. There are 10 different MIDI modes once the sketch is uploaded. This demo makes use of **Mode #10** (RGB color mixing).
 
