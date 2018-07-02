@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MIDI Color Mixer</title>
+    <style>
+        #colorPreview {
+            width: 250px;
+            height: 250px;
+            border: 1px #000 solid;
+            margin: 2em auto;
+            background: rgb(0, 0, 0);
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>MIDI Color Mixer</h1>
+
+    <p>
+        This demo requires:
+    </p>
+    
+    <ul>
+        <li>A [WebMIDI capable browser](https://caniuse.com/#feat=midi)</li>
+        <li>An [Adafruit Circuit Playground](https://www.adafruit.com/product/3333)</li>
+        <li>The [Circuit Playground MIDI Multi-Tool](https://github.com/georgemandis/circuit-playground-midi-multi-tool) sketch
+            uploaded</li>
+    </ul>
+
+    <div>
+        <label for="red">Red</label>
+        <input type="range" name="red" id="red" min="0" max="255" value="0">
+        <span>0</span>
+    </div>
+
+    <div>
+        <label for="green">Green</label>
+        <input type="range" name="green" id="green" min="0" max="255" value="0">
+        <span>0</span>
+    </div>
+
+    <div>
+        <label for="blue">Blue</label>
+        <input type="range" name="blue" id="blue" min="0" max="255" value="0">
+        <span>0</span>
+    </div>
+
+    <div id="colorPreview"></div>
+
+    <script>
+        const colorChannelMapping = {
+            "red": 144,
+            "green": 145,
+            "blue": 146
+        }
+
+        const currentColor = {
+            "red": 0,
+            "green": 0,
+            "blue": 0
+        }
+
+        const initializeColorRangeInputs = (midiOutput) => {
+            document.querySelectorAll('input[type=range]').forEach((colorInput) => {
+                colorInput.addEventListener("input", (e) => {
+                    e.target.nextElementSibling.innerText = e.target.value;
+
+                    let data1 = parseInt(e.target.value);
+                    let data2 = 0;
+                    if (data1 > 127) {
+                        data2 = -1 * (127 - data1) - 1;
+                        data1 = 127;
+                    }
+
+                    let midiMessage = [colorChannelMapping[e.target.name], data1, data2];
+
+                    midiOutput.send(midiMessage);
+                    currentColor[e.target.name] = data1 + data2;
+
+                    console.log(midiMessage);
+                    console.log(currentColor)
+
+                    document.querySelector('#colorPreview').style.background =
+                        `rgb(${currentColor.red},${currentColor.green},${currentColor.blue})`
+                });
+            })
+        }
+
+        navigator.requestMIDIAccess()
+            .then((access) => {
+                // Find the MIDI ouput one we want for this demo
+                access.outputs.forEach((midiOutput) => {
+                    if (midiOutput.manufacturer === 'Adafruit') {
+                        initializeColorRangeInputs(midiOutput);
+                        console.log("Output found");
+                    }
+                })
+            });
+    </script>
+</body>
+</html>
